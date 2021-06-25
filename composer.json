@@ -1,0 +1,17 @@
+{
+    "name": "adress/php-mvc",
+    "description": "Simple php mvc",
+    "type": "project",
+    "license": "MIT",
+	"require": {
+        "php": "^7.2.5|^8.0",
+        "illuminate/database": "9.x-dev"
+	},
+    "authors": [
+        {
+            "name": "Andres",
+            "email": "jaime-aranda@outlook.com"
+        }
+    ],
+    "minimum-stability": "dev"
+}
