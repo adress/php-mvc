@@ -24,7 +24,7 @@ class View
 
     protected function getContentTemplate($file_name)
     {
-        $file_path = $_SERVER['DOCUMENT_ROOT'] . '/resources/views/' . "$file_name" . '.php';
+        $file_path = __DIR__ . '\\..\resources\views\\' . "$file_name" . ".php";
         //var_dump($file_path);
         extract($this->params);
         ob_start(); //inicia el buffer
