@@ -1,4 +1,4 @@
-# Este proyecto esun simple MVC framework para php
+# Este proyecto es un simple MVC framework para php
 Este proyecto es gratis y de código abierto.
 
 ## Para iniciar
