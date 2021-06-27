@@ -1,5 +1,5 @@
 # Este proyecto esun simple MVC framework para php
-Este proyecto es gratis y [open-source](LICENSE).
+Este proyecto es gratis y de código abierto.
 
 ## Para iniciar
 
