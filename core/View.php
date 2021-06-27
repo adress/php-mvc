@@ -1,26 +1,30 @@
 <?php
 
-namespace App\Core;
+namespace Core;
 
-class View{
+class View
+{
     protected $template;
     protected $viewName;
     protected $params;
 
-    public function __construct($viewName, $params = array()){
+    public function __construct($viewName, $params = array())
+    {
         $this->viewName = $viewName;
         $this->params = $params;
         $this->render();
     }
 
-    protected function render(){
+    protected function render()
+    {
         $file_name = $this->viewName;
         $this->template = $this->getContentTemplate($file_name);
         echo $this->template; //shows the view
     }
 
-    protected function getContentTemplate($file_name){
-        $file_path = $_SERVER['DOCUMENT_ROOT'] . '/php-mvc' .'/resources/views/'. "$file_name" . '.php';
+    protected function getContentTemplate($file_name)
+    {
+        $file_path = $_SERVER['DOCUMENT_ROOT'] . '/resources/views/' . "$file_name" . '.php';
         //var_dump($file_path);
         extract($this->params);
         ob_start(); //inicia el buffer

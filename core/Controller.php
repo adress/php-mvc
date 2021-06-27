@@ -1,11 +1,13 @@
 <?php
 
-namespace App\Core;
+namespace Core;
 
-abstract class Controller{
+abstract class Controller
+{
     private $view;
 
-    protected function return_view($view_name = '', $params = array()){
+    protected function return_view($view_name = '', $params = array())
+    {
         $this->view = new View($view_name, $params);
     }
 }
