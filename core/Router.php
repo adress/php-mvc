@@ -3,6 +3,7 @@
 namespace Core;
 
 use App\Controllers\HomeController;
+use Exception;
 
 class Router
 {
@@ -12,6 +13,7 @@ class Router
   private $url_params = [];
   private $routes;
   private $verb;
+  private $actual_route = null;
 
   public function __construct(string $uri, string $verb)
   {
@@ -20,11 +22,11 @@ class Router
 
     $this->init_routes();
     $this->configureURI();
+    $this->resolve();
   }
 
   private function init_routes()
   {
-
     $this->routes =
       [
         ['verb' => 'GET', 'uri' => '/home', 'action' => 'index', 'controller' => HomeController::class],
@@ -34,7 +36,7 @@ class Router
 
   public function configureURI()
   {
-    $actual_route = null;
+
     //filter routes for verb
     $verb_routes = array_filter($this->routes, function ($ruta) {
       return $this->verb == $ruta['verb'];
@@ -44,16 +46,20 @@ class Router
     foreach ($verb_routes as $route) {
       $pattern = preg_replace('#{\w+}#', '[0-9]+', "#^{$route['uri']}$#");
       if (preg_match($pattern, $this->uri)) {
-        $actual_route = $route;
+        $this->actual_route = $route;
         $this->action = $route['action'];
         $this->controller = $route['controller'];
         break;
       }
     }
 
+    if (!$this->actual_route) {
+      return;
+    }
+
     //get url params like {id}
-    $urlArray = explode('/', $actual_route['uri']);
-    preg_match_all('#{\w+}#', $actual_route['uri'], $matches);
+    $urlArray = explode('/', $this->actual_route['uri']);
+    preg_match_all('#{\w+}#', $this->actual_route['uri'], $matches);
 
     //set pamater url into key-array
     foreach ($matches[0] as $match) {
@@ -86,5 +92,25 @@ class Router
 
   public function resolve()
   {
+    try {
+      if (!$this->actual_route) {
+        throw new Exception("Error: Route {$this->uri} not found");
+      }
+      if(!class_exists($this->controller)){
+        throw new Exception("Error: Controller {$this->controller} not found");
+      }
+      if(!method_exists($this->controller, $this->action)){
+        throw new Exception("Error: Method {$this->action} not found in controller {$this->controller}");
+      }
+      
+      $controller = new $this->controller;
+      $action = $this->action;
+      $params = $this->getRequest();
+
+      $request = $controller->$action($params);
+      
+    } catch (Exception $ex) {
+      echo ($ex->getMessage());
+    }
   }
 }
