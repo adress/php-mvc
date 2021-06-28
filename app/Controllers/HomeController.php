@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\UserModel;
 use Core\Controller;
 
 class HomeController extends Controller
@@ -19,9 +20,11 @@ class HomeController extends Controller
     public function show($request)
     {
         $id = $request['get']['id'];
+        $user = new UserModel();
+        $name = $user->findById($id)['name'] ?? '';
         $params = [
             "title" => "Welcome",
-            "data" => "You are on index view #{$id}",
+            "data" => ucwords($name) . " Welcome to Show View",
             "footer" => "Adress"
         ];
         $this->return_view("home", $params);
