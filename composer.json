@@ -13,7 +13,7 @@
             "Core\\": "core/"
         },
         "files": [
-            "app/Services/Helper/functions.php"
+            "app/Services/Helper/Helper.php"
         ]
     },
     "authors": [
