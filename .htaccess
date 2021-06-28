@@ -1,9 +1,9 @@
 <IfModule mod_rewrite.c>
 RewriteEngine on
 
-RewriteCond %{REQUEST_URI} !^/pcstore/public/
+RewriteCond %{REQUEST_URI} !^/computerstore/public/
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ /pcstore/public/$1
+RewriteRule ^(.*)$ /computerstore/public/$1
 RewriteRule ^(/)?$ public/index.php [L]
 </IfModule>

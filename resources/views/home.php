@@ -30,9 +30,9 @@
                 <div class="text-center">
                     <nav aria-label="Page navigation example" style="float: right;">
                         <ul class="pagination">
-                            <li class="page-item"><a class="page-link" href="/home/1">1</a></li>
-                            <li class="page-item"><a class="page-link" href="/home/2">2</a></li>
-                            <li class="page-item"><a class="page-link" href="/home/3">3</a></li>
+                            <li class="page-item"><a class="page-link" href="<?= helper()->asset('/home/1'); ?>">1</a></li>
+                            <li class="page-item"><a class="page-link" href="<?= helper()->asset('/home/2'); ?>">2</a></li>
+                            <li class="page-item"><a class="page-link" href="<?= helper()->asset('/home/3'); ?>">3</a></li>
                         </ul>
                     </nav>
                 </div>
