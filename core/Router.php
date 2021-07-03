@@ -2,7 +2,9 @@
 
 namespace Core;
 
+use App\Controllers\AdminController;
 use App\Controllers\HomeController;
+use App\Controllers\ProductoController;
 use Exception;
 
 class Router
@@ -20,6 +22,12 @@ class Router
     $this->uri = $uri;
     $this->verb = $verb;
 
+    if (isset($_POST['_method'])) {
+      if ($_POST['_method'] === 'put' or $_POST['_method'] === 'PUT') {
+        $this->verb = 'PUT';
+      }
+    }
+
     $this->init_routes();
     $this->configureURI();
     $this->resolve();
@@ -29,8 +37,22 @@ class Router
   {
     $this->routes =
       [
-        ['verb' => 'GET', 'uri' => '/home', 'action' => 'index', 'controller' => HomeController::class],
-        ['verb' => 'GET', 'uri' => '/home/{id}', 'action' => 'show', 'controller' => HomeController::class],
+        //Home
+        ['verb' => 'GET', 'uri' => '/', 'action' => 'index', 'controller' => HomeController::class],
+        ['verb' => 'GET', 'uri' => '/calcular', 'action' => 'calcular', 'controller' => HomeController::class],
+        ['verb' => 'GET', 'uri' => '/convertir', 'action' => 'convertir', 'controller' => HomeController::class],
+        //Productos
+        ['verb' => 'GET', 'uri' => '/products', 'action' => 'index', 'controller' => ProductoController::class],
+        ['verb' => 'GET', 'uri' => '/products/{product}/edit', 'action' => 'edit', 'controller' => ProductoController::class],
+        ['verb' => 'PUT', 'uri' => '/products/{product}', 'action' => 'update', 'controller' => ProductoController::class],
+        ['verb' => 'GET', 'uri' => '/products/create', 'action' => 'create', 'controller' => ProductoController::class],
+        ['verb' => 'POST', 'uri' => '/products', 'action' => 'store', 'controller' => ProductoController::class],
+        ['verb' => 'DELETE', 'uri' => '/products/{product}', 'action' => 'destroy', 'controller' => ProductoController::class],
+        //Administracion
+        ['verb' => 'GET', 'uri' => '/crearbd', 'action' => 'crearbd', 'controller' => AdminController::class],
+        ['verb' => 'GET', 'uri' => '/creartabla', 'action' => 'creartabla', 'controller' => AdminController::class],
+        ['verb' => 'GET', 'uri' => '/reportepdf', 'action' => 'reportepdf', 'controller' => AdminController::class],
+        ['verb' => 'GET', 'uri' => '/backup', 'action' => 'backup', 'controller' => AdminController::class],
       ];
   }
 
@@ -86,7 +108,12 @@ class Router
   public function getRequest()
   {
     $get = array_merge($_GET, $this->url_params);
-    $post = $_POST;
+    if ($this->verb === 'PUT') {
+      parse_str(file_get_contents('php://input'), $_PUT);
+      $post = $_PUT;
+    } else {
+      $post = $_POST;
+    }
     return array('get' => $get, 'post' => $post);
   }
 
@@ -96,19 +123,18 @@ class Router
       if (!$this->actual_route) {
         throw new Exception("Error: Route {$this->uri} not found");
       }
-      if(!class_exists($this->controller)){
+      if (!class_exists($this->controller)) {
         throw new Exception("Error: Controller {$this->controller} not found");
       }
-      if(!method_exists($this->controller, $this->action)){
+      if (!method_exists($this->controller, $this->action)) {
         throw new Exception("Error: Method {$this->action} not found in controller {$this->controller}");
       }
-      
+
       $controller = new $this->controller;
       $action = $this->action;
       $params = $this->getRequest();
 
       $request = $controller->$action($params);
-      
     } catch (Exception $ex) {
       echo ($ex->getMessage());
     }

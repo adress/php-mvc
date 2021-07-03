@@ -2,6 +2,8 @@
 
 namespace Core;
 
+use Helper;
+
 class View
 {
     protected $template;
@@ -24,7 +26,7 @@ class View
 
     protected function getContentTemplate($file_name)
     {
-        $file_path = __DIR__ . '\\..\resources\views\\' . "$file_name" . ".php";
+        $file_path = Helper::join_paths(__DIR__ ,"/../resources/views/","{$file_name}.php");
         //var_dump($file_path);
         extract($this->params);
         ob_start(); //inicia el buffer

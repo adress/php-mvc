@@ -11,7 +11,7 @@ abstract class Model
 
     public function __construct()
     {
-        $mysqli = new mysqli(
+        $this->db = new mysqli(
             $_ENV['DB_HOST'],
             $_ENV['DB_USERNAME'],
             $_ENV['DB_PASSWORD'],
@@ -19,23 +19,23 @@ abstract class Model
             $_ENV['DB_PORT']
         );
 
-        if ($mysqli->connect_errno) {
+        if ($this->db->connect_errno) {
             echo "Failed to connect to MySQL: " . $mysqli->connect_error;
             exit();
         }
 
-        $this->db = $mysqli;
     }
 
     public function __destruct()
     {
         $this->db->close();
     }
-    
+
     public function all()
     {
         $query = "SELECT * from {$this->table}";
-        return $this->db->query($query)->data_seek(0);
+        return $this->db->query($query);
+        //return mysqli_fetch_all($result, MYSQLI_ASSOC);
     }
 
     public function findById($id)
@@ -56,8 +56,7 @@ abstract class Model
             $fields .= "{$col} = {$val}";
         }
         $query = "INSERT INTO {$this->table} SET {$fields};";
-        echo $query;
-        $this->db->query($query);
+        return $this->db->query($query);
     }
 
     public function update($id, $params)
@@ -71,14 +70,13 @@ abstract class Model
             $fields .= "{$col} = {$val}";
         }
         $query = "UPDATE {$this->table} SET {$fields} WHERE id = {$id};";
-        echo $query;
-        $this->db->query($query);
+        return $this->db->query($query);
     }
 
     public function delete($id)
     {
         $id = $this->db->real_escape_string($id);
         $query = "DELETE FROM {$this->table} WHERE id = {$id}";
-        $this->db->query($query);
+        return $this->db->query($query);
     }
 }
