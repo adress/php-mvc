@@ -19,7 +19,7 @@ class HomeController extends Controller
 
     public function show($request)
     {
-        $id = $request['get']['id'];
+        $id = $request['get']['user'];
         $user = new UserModel();
         $name = $user->findById($id)['name'] ?? '';
         $params = [

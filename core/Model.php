@@ -3,11 +3,12 @@
 namespace Core;
 
 use mysqli;
+use Exception;
 
 abstract class Model
 {
-    protected $db;
-    protected $table;
+    protected mysqli $db;
+    protected string $table;
 
     public function __construct()
     {
@@ -20,10 +21,8 @@ abstract class Model
         );
 
         if ($this->db->connect_errno) {
-            echo "Failed to connect to MySQL: " . $mysqli->connect_error;
-            exit();
+            throw new Exception("Error de conexión MySQL: " . $this->db->connect_error);
         }
-
     }
 
     public function __destruct()
@@ -31,52 +30,66 @@ abstract class Model
         $this->db->close();
     }
 
-    public function all()
+    public function all(): array
     {
-        $query = "SELECT * from {$this->table}";
-        return $this->db->query($query);
-        //return mysqli_fetch_all($result, MYSQLI_ASSOC);
-    }
+        $result = $this->db->query("SELECT * FROM {$this->table}");
 
-    public function findById($id)
-    {
-        $id = $this->db->real_escape_string($id);
-        $query = "SELECT * from {$this->table} WHERE id = {$id} lIMIT 1";
-        return $this->db->query($query)->fetch_assoc();
-    }
-
-    public function save(array $params)
-    {
-        $count = 0;
-        $fields = '';
-        foreach ($params as $col => $val) {
-            if ($count++ != 0) $fields .= ', ';
-            $col = $this->db->real_escape_string($col);
-            $val = is_string($val) ? "'{$this->db->real_escape_string($val)}'" : $this->db->real_escape_string($val);
-            $fields .= "{$col} = {$val}";
+        if (!$result) {
+            throw new Exception("Error en la consulta: " . $this->db->error);
         }
-        $query = "INSERT INTO {$this->table} SET {$fields};";
-        return $this->db->query($query);
+
+        return $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    public function update($id, $params)
+    public function findById(int $id): ?array
     {
-        $count = 0;
-        $fields = '';
-        foreach ($params as $col => $val) {
-            if ($count++ != 0) $fields .= ', ';
-            $col = $this->db->real_escape_string($col);
-            $val = is_string($val) ? "'{$this->db->real_escape_string($val)}'" : $this->db->real_escape_string($val);
-            $fields .= "{$col} = {$val}";
-        }
-        $query = "UPDATE {$this->table} SET {$fields} WHERE id = {$id};";
-        return $this->db->query($query);
+        $stmt = $this->db->prepare("SELECT * FROM {$this->table} WHERE id = ? LIMIT 1");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+
+        $result = $stmt->get_result();
+        return $result->fetch_assoc() ?: null;
     }
 
-    public function delete($id)
+    public function save(array $params): bool
     {
-        $id = $this->db->real_escape_string($id);
-        $query = "DELETE FROM {$this->table} WHERE id = {$id}";
-        return $this->db->query($query);
+        $columns = implode(', ', array_keys($params));
+        $placeholders = implode(', ', array_fill(0, count($params), '?'));
+        $types = $this->getParamTypes($params);
+        $values = array_values($params);
+
+        $query = "INSERT INTO {$this->table} ({$columns}) VALUES ({$placeholders})";
+        $stmt = $this->db->prepare($query);
+        $stmt->bind_param($types, ...$values);
+
+        return $stmt->execute();
+    }
+
+    public function update(int $id, array $params): bool
+    {
+        $fields = implode(', ', array_map(fn($key) => "$key = ?", array_keys($params)));
+        $types = $this->getParamTypes($params) . 'i'; // 'i' para el id
+        $values = array_values($params);
+        $values[] = $id;
+
+        $query = "UPDATE {$this->table} SET {$fields} WHERE id = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->bind_param($types, ...$values);
+
+        return $stmt->execute();
+    }
+
+    public function delete(int $id): bool
+    {
+        $stmt = $this->db->prepare("DELETE FROM {$this->table} WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        return $stmt->execute();
+    }
+
+    private function getParamTypes(array $params): string
+    {
+        return implode('', array_map(function ($val) {
+            return is_int($val) ? 'i' : (is_float($val) ? 'd' : 's');
+        }, $params));
     }
 }

@@ -25,7 +25,7 @@ class Router
   {
     $this->routes = [
       ['verb' => 'GET', 'uri' => '/', 'action' => 'index', 'controller' => \App\Controllers\HomeController::class],
-      ['verb' => 'GET', 'uri' => '/calcular', 'action' => 'show', 'controller' => \App\Controllers\HomeController::class],
+      ['verb' => 'GET', 'uri' => '/users/{user}', 'action' => 'show', 'controller' => \App\Controllers\HomeController::class],
       ['verb' => 'GET', 'uri' => '/convertir', 'action' => 'convertir', 'controller' => \App\Controllers\HomeController::class],
       // Agrega más rutas aquí...
     ];

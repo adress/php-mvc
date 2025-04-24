@@ -6,7 +6,7 @@ use Core\Model;
 
 class UserModel extends Model
 {
-    public $table = "users";
+    protected string $table = 'users';
 
     public function __construct()
     {
